@@ -6,8 +6,9 @@
  * *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html. */
 /* global require */
 var _ = require('underscore');
-var md5 = require('MD5');
+var  counter = 0;
 var url = require('url');
+var helper = require('./persistent_server.js');
 
 var chatLog = [
 {createdAt: new Date(),
@@ -25,14 +26,15 @@ var parsePost = function(request){
   request.on('end', function(){
     var message = JSON.parse(JSONstring);
     message.createdAt = new Date();
-    message.objectID = md5(JSON.stringify(message)).substr(0,10);
+    message.objectID = counter;
 
     var roomName = url.parse(request.url).pathname.substr(9);
     if (roomName !== 'messages'){
       message.roomname = roomName;
     }
-    chatLog.push(message);
+    helper.writeChattoDB(message);
   });
+  counter++;
 };
 
 var handleRequest = function(request, response) {

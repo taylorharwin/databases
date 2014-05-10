@@ -1,17 +1,92 @@
 var mysql = require('mysql');
-/* If the node mysql module is not found on your system, you may
- * need to do an "sudo npm install -g mysql". */
+var http = require("http");
+var handleRequest = require("./request-handler.js").handleRequest;
 
-/* You'll need to fill the following out with your mysql username and password.
- * database: "chat" specifies that we're using the database called
- * "chat", which we created by running schema.sql.*/
+ var port = 3000;
+ var ip = "127.0.0.1";
+
+var server = http.createServer(handleRequest);
+console.log("Listening on http://" + ip + ":" + port);
+server.listen(port, ip);
+
 var dbConnection = mysql.createConnection({
-  user: "",
+  user: "root",
   password: "",
-  database: "chat"
+  database: "chatterbot"
 });
 
-dbConnection.connect();
+dbConnection.connect(function(err){
+  if (!err){
+    console.log('connected to mysql!');
+  }
+});
+
+
+// var getAllChats = function(){
+//     dbConnection.query('SELECT messages.messagetext, ', function(err, results){
+//       if (err){
+//         console.log(err);
+//       } else {
+//         console.log(results);
+//       }
+//     });
+//   };
+
+exports.writeChattoDB = function(chat){
+  var newName = {username: chat.username, objectID: chat.objectID};
+  var newMessage = {messagetext: chat.text, objectID: chat.objectID, createdAt: 66666};
+  var newRoom = {roomname: chat.roomname, objectID: chat.objectID};
+  dbConnection.query('INSERT INTO users SET ?', newName, function(err, result){
+    if (err){
+      console.log(err);
+    } else {
+      console.log('added' + result + 'to the users table');
+    }
+  });
+  dbConnection.query('INSERT INTO messages SET ?', newMessage, function(err, result){
+    if (err){
+      console.log(err);
+    } else {
+      console.log('added' + result + 'to the messages table');
+    }
+  });
+  dbConnection.query('INSERT INTO rooms SET ?', newRoom, function(err, result){
+    if (err){
+      console.log(err);
+    } else {
+      console.log('added' + result + 'to the rooms table');
+    }
+  });
+};
+
+// var writeMsgtoDB = function(msg){se
+
+// };
+
+// var write RoomtoDB = function(room){
+
+// }
+
+
+
+
+
+
+
+
+
+
+// var addMessage = dbConnection.query('INSERT INTO messages SET ?', post, function(err, result){
+//   if (err){
+//     console.log('message added');
+//   }
+//   else {
+//     console.log (addMessage.sql);
+//   }
+// });
+
+
+
 /* Now you can make queries to the Mysql database using the
  * dbConnection.query() method.
  * See https://github.com/felixge/node-mysql for more details about
