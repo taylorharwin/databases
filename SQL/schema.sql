@@ -1,13 +1,20 @@
-CREATE DATABASE chat;
+CREATE DATABASE chatterbot;
 
-USE chat;
+USE chatterbot;
 
-CREATE TABLE messages (
- /* Describe your table here.*/
+CREATE TABLE `messages` (
+  `messagetext` VARCHAR(140),
+  `objectID` INT(5),
+  `createdAt` INT(10)
 );
 
-/* You can also create more tables, if you need them... */
+CREATE TABLE `rooms` (
+  `roomname` VARCHAR(15),
+  `objectID` INT(5)
+);
 
-/*  Execute this file from the command line by typing:
- *    mysql < schema.sql
- *  to create the database and the tables.*/
+CREATE TABLE `users` (
+  `username` VARCHAR(20),
+  `objectID` INT(5)
+);
+
