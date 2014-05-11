@@ -1,6 +1,7 @@
 var mysql = require('mysql');
 var http = require("http");
 var handleRequest = require("./request-handler.js").handleRequest;
+var _ = require('underscore');
 
  var port = 3000;
  var ip = "127.0.0.1";
@@ -22,20 +23,13 @@ dbConnection.connect(function(err){
 });
 
 
-// var getAllChats = function(){
-//     dbConnection.query('SELECT messages.messagetext, ', function(err, results){
-//       if (err){
-//         console.log(err);
-//       } else {
-//         console.log(results);
-//       }
-//     });
-//   };
 
 exports.writeChattoDB = function(chat){
+
   var newName = {username: chat.username, objectID: chat.objectID};
-  var newMessage = {messagetext: chat.text, objectID: chat.objectID, createdAt: 66666};
+  var newMessage = {messagetext: chat.text, objectID: chat.objectID};
   var newRoom = {roomname: chat.roomname, objectID: chat.objectID};
+
   dbConnection.query('INSERT INTO users SET ?', newName, function(err, result){
     if (err){
       console.log(err);
@@ -55,6 +49,16 @@ exports.writeChattoDB = function(chat){
       console.log(err);
     } else {
       console.log('added' + result + 'to the rooms table');
+    }
+  });
+};
+
+exports.readChatsFromDB = function(){
+  dbConnection.query('SELECT messages.objectID, messages.messagetext, users.username FROM messages INNER JOIN users ON messages.objectID = users.objectID ORDER BY users.objectID', function(err, result){
+    if (err){
+      console.log(err);
+    } else {
+      console.log(_.uniq(result));
     }
   });
 };

@@ -19,13 +19,13 @@ username: "Rasputin"}
 ];
 
 var parsePost = function(request){
+    counter++;
   var JSONstring = '';
   request.on('data', function(data){
     JSONstring += data;
   });
   request.on('end', function(){
     var message = JSON.parse(JSONstring);
-    message.createdAt = new Date();
     message.objectID = counter;
 
     var roomName = url.parse(request.url).pathname.substr(9);
@@ -34,7 +34,6 @@ var parsePost = function(request){
     }
     helper.writeChattoDB(message);
   });
-  counter++;
 };
 
 var handleRequest = function(request, response) {
@@ -78,39 +77,34 @@ var handleRequest = function(request, response) {
   };
 
   var parseGet = function(){
-    var urlPath = url.parse(request.url).pathname;
-    console.log(urlPath.substr(0,8) === '/classes');
-    if (urlPath === '/classes/messages' || urlPath === '/log'){
-      var logCopy = chatLog.slice();
-      logCopy.sort(function(a,b){
-        return b.createdAt - a.createdAt;
-      });
-      success({'results' : logCopy});
-    }
-    else if (urlPath === '/classes/rooms'){
-      var allNames = {};
-      var getRoomNames = function(){
-        _.each(chatLog, function(message){
-          allNames[message.roomname] = true;
-        });
-      };
-      getRoomNames();
-      success({'results' : Object.keys(allNames)});
-    }
-    else if (urlPath.substr(0,8) === '/classes'){
-      var roomName = urlPath.substr(9);
-      var roomMessages = _.filter(chatLog, function(message){
-        return message.roomname === roomName;
-      });
-      roomMessages.sort(function(a,b){
-        return b.createdAt - a.createdAt;
-      });
-      success({'results' : roomMessages});
-    }
-    else {
-      failure();
-    }
+    var dataToAdd = helper.readChatsFromDV();
+    console.log("ACCESSED INSIDE PARSEGET");
+      success({'results' : dataToAdd});
   };
+  //   else if (urlPath === '/classes/rooms'){
+  //     var allNames = {};
+  //     var getRoomNames = function(){
+  //       _.each(chatLog, function(message){
+  //         allNames[message.roomname] = true;
+  //       });
+  //     };
+  //     getRoomNames();
+  //     success({'results' : Object.keys(allNames)});
+  //   }
+  //   else if (urlPath.substr(0,8) === '/classes'){
+  //     var roomName = urlPath.substr(9);
+  //     var roomMessages = _.filter(chatLog, function(message){
+  //       return message.roomname === roomName;
+  //     });
+  //     roomMessages.sort(function(a,b){
+  //       return b.createdAt - a.createdAt;
+  //     });
+  //     success({'results' : helper.readChatsFromDB()});
+  //   }
+  //   else {
+  //     failure();
+  //   }
+  // };
 
   if (request.method === "OPTIONS"){
     options();
